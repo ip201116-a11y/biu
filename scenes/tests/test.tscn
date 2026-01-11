@@ -1,7 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://biht6m8hp5ua2"]
+[gd_scene load_steps=3 format=3 uid="uid://biht6m8hp5ua2"]
 
 [ext_resource type="PackedScene" uid="uid://dmobj48t0e52h" path="res://terrains/biu_world.ldtk" id="1_8cg7g"]
+[ext_resource type="PackedScene" uid="uid://bff2w370b4ou8" path="res://scenes/prefabs/player.tscn" id="2_syyn5"]
 
 [node name="Test" type="Node2D"]
 
 [node name="biu_world" parent="." instance=ExtResource("1_8cg7g")]
+
+[node name="Player" parent="." instance=ExtResource("2_syyn5")]
+position = Vector2(64, 80)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(144, 80)
+zoom = Vector2(4, 4)
