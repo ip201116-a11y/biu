@@ -22,5 +22,5 @@ follow_speed = 5.0
 transition_type = 5
 debug_draw = false
 
-[node name="StaticBody2D" parent="." instance=ExtResource("3_7wxeb")]
+[node name="Box" parent="." instance=ExtResource("3_7wxeb")]
 position = Vector2(104, 104)

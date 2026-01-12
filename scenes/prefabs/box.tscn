@@ -6,7 +6,7 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_weoh1"]
 size = Vector2(16, 16)
 
-[node name="StaticBody2D" type="StaticBody2D" groups=["box"]]
+[node name="Box" type="StaticBody2D" groups=["box"]]
 collision_layer = 4
 script = ExtResource("1_y1l2d")
 
