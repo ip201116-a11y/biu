@@ -100,8 +100,10 @@ func apply_knockback(dir: Vector2, max_dist: int) -> void:
 		
 		var query = PhysicsPointQueryParameters2D.new()
 		query.position = check_pos
-		# Mask 4 (Boxes) + 32 (Existing Bridges)
-		query.collision_mask = 4 + 32 
+		
+		# UPDATED: Include Layer 1 (Player) so the box stops at the player
+		# Mask 1 (Player) + 4 (Boxes) + 32 (Existing Bridges)
+		query.collision_mask = 1 + 4 + 32 
 		
 		var results = space_state.intersect_point(query)
 		if results.size() > 0:

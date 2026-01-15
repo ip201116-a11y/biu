@@ -67,15 +67,16 @@ func apply_knockback(dir: Vector2, max_dist: int) -> void:
 	for i in range(1, max_dist + 1):
 		var check_pos = global_position + (dir * tile_size * i)
 		
-		# Check for BLOCKING objects (Layer 4 = Box, Layer 32 = Floating/Bridge)
-		# We ignore Layer 2 (Water/Wall) so we can fly over it.
 		var query = PhysicsPointQueryParameters2D.new()
 		query.position = check_pos
-		query.collision_mask = 4 + 32 
+		
+		# UPDATED: Include Layer 1 (Player) so the box stops at the player
+		# Mask 1 (Player) + 4 (Boxes) + 32 (Existing Bridges)
+		query.collision_mask = 1 + 4 + 32 
 		
 		var results = space_state.intersect_point(query)
 		if results.size() > 0:
-			break # Blocked by another box/bomb
+			break 
 		
 		target_pos = check_pos
 
