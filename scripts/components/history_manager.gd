@@ -28,8 +28,8 @@ func undo_last_action() -> void:
 
 func save_checkpoint() -> void:
 	# Tags the latest history snapshot as a "Restart Point"
-	if state_history.is_empty():
-		record_snapshot()
+	# FIX: Record a new snapshot to capture the state *after* entering the level
+	record_snapshot()
 	
 	if not state_history.is_empty():
 		state_history.back()["is_tag"] = true
