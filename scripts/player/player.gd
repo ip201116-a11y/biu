@@ -11,7 +11,6 @@ extends Node2D
 @onready var ray: RayCast2D = $RayCast2D
 @onready var bomb_placer: Node2D = $BombPlacer 
 @onready var history_manager: Node = $HistoryManager # Ensure you add this Child Node!
-
 var is_moving: bool = false
 var input_buffer: Vector2 = Vector2.ZERO 
 var movement_tween: Tween # Track the active tween to allow cancelling
@@ -43,8 +42,19 @@ func _unhandled_input(event: InputEvent) -> void:
 				history_manager.record_snapshot()
 			attempt_move(inputs[dir])
 
+# --- UPDATED LOGIC ---
+
+func on_level_entered() -> void:
+	# Called by Camera2D when entering a new room
+	if history_manager:
+		history_manager.save_checkpoint()
+
 func reset_level() -> void:
-	get_tree().reload_current_scene()
+	# Instead of reloading the scene, we restore the checkpoint
+	if history_manager:
+		history_manager.load_checkpoint()
+
+# ---------------------
 
 func attempt_move(direction: Vector2) -> void:
 	if bomb_placer:
@@ -179,6 +189,7 @@ func carried_by_box(target_pos: Vector2, duration: float) -> void:
 	
 	# Assuming box handles safety (it's a bridge), so we just finish
 	movement_tween.tween_callback(func(): is_moving = false)
+
 func record_data() -> Dictionary:
 	return {
 		"position": position

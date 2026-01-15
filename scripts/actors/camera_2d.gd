@@ -30,6 +30,10 @@ func _ready() -> void:
 		if current_level:
 			print("Start level found: ", current_level.name)
 			_snap_to_target()
+			
+			# TRIGGER INITIAL CHECKPOINT
+			if player.has_method("on_level_entered"):
+				player.on_level_entered()
 		else:
 			print("Warning: Player started in the void (no level found).")
 
@@ -70,6 +74,10 @@ func _process(delta: float) -> void:
 func _change_room(new_level: Node2D) -> void:
 	current_level = new_level
 	is_transitioning = true
+	
+	# TRIGGER CHECKPOINT
+	if player.has_method("on_level_entered"):
+		player.on_level_entered()
 	
 	var target_pos = _get_clamped_position(player.global_position, new_level)
 	
