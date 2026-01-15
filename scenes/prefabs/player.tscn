@@ -24,6 +24,7 @@ shape = SubResource("RectangleShape2D_tou0u")
 [node name="BombPlacer" type="Node2D" parent="."]
 script = ExtResource("3_n0leu")
 bomb_scene = ExtResource("4_8cdkg")
+max_bombs = 2
 
 [node name="HistoryManager" type="Node" parent="."]
 script = ExtResource("5_56dyf")

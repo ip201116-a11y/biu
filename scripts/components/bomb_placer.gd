@@ -77,6 +77,7 @@ func actual_explode_logic() -> void:
 	for bomb in active_bombs:
 		if is_instance_valid(bomb) and bomb.has_method("explode"):
 			bomb.explode()
+			break # STOP after exploding the first bomb found (FIFO order)
 
 func _on_bomb_removed(bomb: Node) -> void:
 	if bomb in active_bombs:
