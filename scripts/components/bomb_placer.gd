@@ -100,7 +100,8 @@ func record_data() -> Dictionary:
 			bombs_data.append(bomb.record_data())
 	
 	return {
-		"bombs": bombs_data
+		"bombs": bombs_data,
+		"facing_direction": facing_direction
 	}
 
 func restore_data(data: Dictionary) -> void:
@@ -121,3 +122,7 @@ func restore_data(data: Dictionary) -> void:
 			var new_bomb = spawn_bomb_at(bomb_data.pos)
 			if new_bomb.has_method("restore_data"):
 				new_bomb.restore_data(bomb_data)
+	
+	# 3. Restore Rotation
+	if "facing_direction" in data:
+		update_direction(data.facing_direction)
