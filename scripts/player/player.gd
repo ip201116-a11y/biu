@@ -52,7 +52,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func on_level_entered() -> void:
 	# Called by Camera2D when entering a new room.
-	
 	# CRITICAL FIX: If we are uncontrolled (knockback), DO NOT save yet.
 	# We might be flying over a void or hazard.
 	if is_knockback_active:
@@ -113,7 +112,12 @@ func can_push_box(box: Node2D, direction: Vector2) -> bool:
 	return not is_blocked
 
 func push_box(box: Node2D, direction: Vector2) -> void:
-	var box_target = box.position + (direction * tile_size)
+	# This prevents floating point drift or "overshoot" values from accumulating.
+	var start_pos = box.position.snapped(Vector2(tile_size, tile_size)) - Vector2(tile_size, tile_size) / 2
+	
+	# Calculate target based on the clean, snapped position
+	var box_target = start_pos + (direction * tile_size)
+	
 	var tween = create_tween()
 	tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(box, "position", box_target, move_speed)
@@ -151,56 +155,98 @@ func apply_knockback(direction: Vector2, distance: int) -> void:
 	is_knockback_active = true
 	has_pending_level_entry = false
 	
-	var target_pos = position + (direction * tile_size * distance)
+	# 1. Calculate Path & Check Obstacles
+	var space_state = get_world_2d().direct_space_state
+	var valid_distance = 0
+	var hit_obstacle = false
+	
+	for i in range(1, distance + 1):
+		var check_pos = global_position + (direction * tile_size * i)
+		
+		var query = PhysicsPointQueryParameters2D.new()
+		query.position = check_pos
+		# Check against Walls (2) and Boxes/Bombs (4)
+		query.collision_mask = wall_layer + box_layer
+		query.collide_with_bodies = true
+		
+		var results = space_state.intersect_point(query)
+		
+		# [FIX START] Check results to see if we hit a REAL obstacle or just Water
+		var hit_real_solid = false
+		for result in results:
+			var collider = result.collider
+			
+			# If we hit a TileMap, assume it is Water/Floor and fly over it
+			# We do this because Water is often on the Wall Layer (2)
+			if collider is TileMap or (ClassDB.class_exists("TileMapLayer") and collider.is_class("TileMapLayer")):
+				continue
+			
+			# If we hit a Box or a Wall (Node), we stop.
+			# We assume Walls are StaticBody2D nodes in group "wall" (from wall.gd)
+			hit_real_solid = true
+			break
+		
+		if hit_real_solid:
+			hit_obstacle = true
+			break
+		# [FIX END]
+		
+		valid_distance = i
+
+	var target_pos = position + (direction * tile_size * valid_distance)
 	_target_pos = target_pos 
 	
 	if movement_tween: movement_tween.kill()
 	movement_tween = create_tween()
-	movement_tween.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
-	movement_tween.tween_property(self, "position", target_pos, 0.4)
 	
+	# 2. Animation Logic
+	if hit_obstacle:
+		# CRASH: Hard stop!
+		# We scale the duration so you hit the wall at full speed, 
+		# rather than floating slowly to it.
+		var ratio = float(valid_distance) / float(distance) if distance > 0 else 0.0
+		# Clamp min duration to 0.05s to prevent instant teleporting
+		var crash_duration = max(0.05, 0.4 * ratio)
+		
+		# Linear means constant velocity -> abrupt stop
+		movement_tween.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+		movement_tween.tween_property(self, "position", target_pos, crash_duration)
+		
+	else:
+		# FRICTION: Smooth slow down (Air resistance)
+		movement_tween.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+		movement_tween.tween_property(self, "position", target_pos, 0.4)
+	
+	# 3. Landing Logic (Hazards/Void)
 	movement_tween.tween_callback(func():
-		# 1. Check Hazard (Water/Wall)
-		var space_state = get_world_2d().direct_space_state
+		var space_state1 = get_world_2d().direct_space_state
 		var query = PhysicsPointQueryParameters2D.new()
 		query.position = global_position
 		query.collision_mask = wall_layer 
 		query.collide_with_areas = true
 		query.collide_with_bodies = true
 		
-		var results = space_state.intersect_point(query)
+		var results = space_state1.intersect_point(query)
 		
-		# 2. Check Void
 		var is_in_void = false
 		var camera = get_viewport().get_camera_2d()
 		if camera and camera.has_method("is_point_in_level"):
 			if not camera.is_point_in_level(global_position):
 				is_in_void = true
 		
-		# --- HAZARD LOGIC ---
 		if results.size() > 0 or is_in_void:
-			print("Player landed on hazard. Resetting to LAST SAFE checkpoint...")
-			
+			print("Player landed on hazard. Resetting...")
 			if movement_tween: movement_tween.kill()
-			
-			# Reset flags BEFORE loading (so we don't block the restore)
 			is_moving = false
 			is_knockback_active = false
-			has_pending_level_entry = false # Discard the pending tag (it was bad)
-			
+			has_pending_level_entry = false 
 			if history_manager:
 				history_manager.load_checkpoint()
-				
-		# --- SAFE LANDING ---
 		else:
 			is_moving = false
 			is_knockback_active = false
-			
-			# If we entered a new room mid-air, we skipped saving.
-			# Now that we are safe, we commit that checkpoint.
 			if has_pending_level_entry:
 				has_pending_level_entry = false
-				print("Knockback finished safely. Saving deferred checkpoint.")
 				if history_manager:
 					history_manager.save_checkpoint()
 	)

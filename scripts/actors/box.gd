@@ -1,4 +1,4 @@
-extends StaticBody2D
+extends AnimatableBody2D
 
 @export_flags_2d_physics var water_layer: int = 2 
 @export var tile_map_layer: int = 1

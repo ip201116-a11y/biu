@@ -4,7 +4,9 @@ extends Node
 # Add your wall scene here
 const SCENE_MAPPING = {
 	"Box": "res://scenes/prefabs/box.tscn",
-	"Wall": "res://scenes/prefabs/wall.tscn" 
+	"Wall": "res://scenes/prefabs/wall.tscn",
+	"Detector": "res://scenes/prefabs/door_detector.tscn",
+	"Door": "res://scenes/prefabs/door.tscn"
 }
 
 func post_import(entity_layer: LDTKEntityLayer) -> LDTKEntityLayer:
@@ -23,6 +25,9 @@ func post_import(entity_layer: LDTKEntityLayer) -> LDTKEntityLayer:
 				# REFACTORED: Delegate field import to the object itself
 				if new_node.has_method("import_ldtk_fields"):
 					new_node.import_ldtk_fields(entity.fields)
+				
+				new_node.scale = entity.size / 16;
+				
 
 				entity_layer.add_child(new_node)
 				new_node.owner = scene_root
