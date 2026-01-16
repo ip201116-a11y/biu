@@ -63,9 +63,10 @@ To add new textures or sprites to the game:
 
 ### Contributing Code
 
-1. Create a new branch for your feature: `git checkout -b feature/your-feature-name`.
-2. Write your logic in C#. Follow the existing naming conventions (PascalCase for methods and public variables).
-3. Ensure the project builds successfully before committing.
+1. [Fork this project](https://github.com/WMsans/biu/fork). 
+2. [Optional] Create a new branch for your feature: `git checkout -b feature/your-feature-name`.
+3. Write your logic in C#, GDScript or any language extension you like. Follow the existing naming conventions (PascalCase for methods and public variables).
+4. Ensure the project builds successfully before committing.
 
 ---
 
@@ -78,6 +79,7 @@ Once you've made your changes and pushed them to your fork:
 3. Describe your changes:
 * What does this PR add or fix?
 * Are there any breaking changes?
+* Attaching images explaining the changes are preferred. 
 
 
 4. Click **Create pull request**.
