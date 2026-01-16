@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3 uid="uid://cxmirugxqpfci"]
+
+[ext_resource type="Script" uid="uid://485wh4mkm58q" path="res://scripts/gui/main_menu/start_button.gd" id="1_xbu81"]
+
+[node name="MAIN_MENU" type="Node2D"]
+
+[node name="base_control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+
+[node name="the_manliest_color" type="ColorRect" parent="base_control"]
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+color = Color(1, 0, 1, 1)
+
+[node name="pro_gamer_text" type="Label" parent="base_control"]
+layout_mode = 0
+offset_left = 296.0
+offset_right = 831.0
+offset_bottom = 118.0
+theme_override_colors/font_color = Color(0, 0, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.9529412, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 9
+theme_override_constants/shadow_offset_y = 7
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/font_size = 86
+text = "SUP GAMERS"
+
+[node name="Button" type="Button" parent="base_control"]
+layout_mode = 0
+offset_left = 333.0
+offset_top = 244.0
+offset_right = 794.0
+offset_bottom = 391.0
+text = "START"
+script = ExtResource("1_xbu81")
+
+[connection signal="pressed" from="base_control/Button" to="base_control/Button" method="_on_pressed"]
